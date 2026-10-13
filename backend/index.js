@@ -4,36 +4,54 @@ const mysql = require('mysql2');
 require('dotenv').config();
 
 const app = express();
-
-// Middlewares
 app.use(cors());
 app.use(express.json());
 
-// Conexión a MariaDB
-const db = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+// Config  db
+const pool = mysql.createPool({
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'test',
+  password: process.env.DB_PASSWORD || 'prueba2026',
+  database: process.env.DB_NAME || 'chrono_react',
+  port: 3306 // puerto db
 });
 
-// Probar conexión
-db.getConnection((err, connection) => {
+const db = pool.promise();
+
+
+pool.getConnection((err, connection) => {
   if (err) {
-    console.error('Error conectando a MariaDB:', err);
-    return;
+    console.error('❌ ERROR de Base de Datos:', err.message);
+  } else {
+    console.log('✅ ¡Conectado exitosamente a MariaDB (chrono_react)!');
+    connection.release();
   }
-  console.log('¡Conectado exitosamente a MariaDB!');
-  connection.release();
 });
 
-// Ruta de prueba
-app.get('/', (req, res) => {
-  res.send('API del Dashboard funcionando');
+
+app.get('/api/relojes', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM relojes');
+    res.json(rows);
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// Iniciar servidor
-const PORT = process.env.PORT || 3000;
+app.get('/api/dashboard', async (req, res) => {
+  try {
+    const [[{ total_relojes }]] = await db.query('SELECT COUNT(*) as total_relojes FROM relojes');
+    const [[{ total_ventas }]] = await db.query('SELECT COUNT(*) as total_ventas FROM ventas');
+    const [[{ ingresos_totales }]] = await db.query('SELECT SUM(precio_final) as ingresos_totales FROM ventas');
+    
+    res.json({
+      totalRelojes: total_relojes,
+      totalVentas: total_ventas,
+      ingresosTotales: ingresos_totales || 0
+    });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+
+const PORT = 3000; 
 app.listen(PORT, () => {
-  console.log(`Servidor Backend corriendo en http://localhost:${PORT}`);
+  console.log(`✅ Backend API web corriendo en http://localhost:${PORT}`);
 });
