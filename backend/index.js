@@ -76,6 +76,23 @@ app.post('/api/clientes', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// Editar cliente (PUT)
+app.put('/api/clientes/:id', async (req, res) => {
+  try {
+    const { nombre, correo, telefono } = req.body;
+    await db.query('UPDATE clientes SET nombre=?, correo=?, telefono=? WHERE id=?', [nombre, correo, telefono, req.params.id]);
+    res.json({ message: 'Cliente actualizado con éxito' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Eliminar cliente (DELETE)
+app.delete('/api/clientes/:id', async (req, res) => {
+  try {
+    await db.query('DELETE FROM clientes WHERE id=?', [req.params.id]);
+    res.json({ message: 'Cliente eliminado' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.get('/api/ventas', async (req, res) => {
   try {
     const query = `

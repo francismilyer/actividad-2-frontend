@@ -9,11 +9,11 @@ export default function SidebarMenu({ activeView, setActiveView }) {
   ];
 
   return (
-    <div className="h-screen w-64 bg-white border-r border-gray-200 flex flex-col">
+    <div className="h-screen w-64 bg-[#091540] border-r border-[#091540] flex flex-col">
       {/* titulo y logo */}
       <div className="px-6 py-8">
         <h2 
-          className="text-[#0D47A1] text-2xl font-bold" 
+          className="text-white text-2xl font-bold" 
           style={{ fontFamily: 'Montserrat, sans-serif' }}
         >
           ChronoReact
@@ -32,8 +32,8 @@ export default function SidebarMenu({ activeView, setActiveView }) {
               onClick={() => setActiveView(item.id)}
               className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors font-medium text-left group
                 ${isActive 
-                  ? "bg-[#90CAF9] text-[#0D47A1]" 
-                  : "text-gray-700 hover:bg-[#2196F3] hover:text-white" 
+                  ? "bg-[#2196F3] text-white shadow-md" // Botón ACTIVO: Fondo azul claro, texto blanco
+                  : "text-gray-300 hover:bg-[#0D47A1] hover:text-white" // Botones INACTIVOS: Texto gris claro, al pasar el ratón fondo azul oscuro y texto blanco
                 }
               `}
             >
@@ -41,7 +41,7 @@ export default function SidebarMenu({ activeView, setActiveView }) {
               {Icon && (
                 <Icon 
                   className={`w-6 h-6 mr-3 ${
-                    isActive ? "text-[#0D47A1]" : "text-gray-500 group-hover:text-white"
+                    isActive ? "text-white" : "text-gray-400 group-hover:text-white"
                   }`} 
                 />
               )}

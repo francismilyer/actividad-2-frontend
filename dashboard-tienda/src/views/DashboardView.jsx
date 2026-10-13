@@ -12,7 +12,7 @@ export default function DashboardView() {
   // saber si la información está cargando
   const [loading, setLoading] = useState(true);
 
-  // Consultamos la API cuando el componente se muestra en pantalla
+  // Consultar la API cuando el componente se muestra en pantalla
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
@@ -43,7 +43,7 @@ export default function DashboardView() {
   return (
     <div className="w-full h-full bg-white p-6">
       <h1 className="text-3xl font-bold text-[#0D47A1] mb-8" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-        Dashboard (Resumen)
+        Dashboard
       </h1>
 
       {/* Grid de Tarjetas con Tailwind CSS */}
