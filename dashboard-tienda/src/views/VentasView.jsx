@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { HiX } from 'react-icons/hi';
-import PageHeader from '../components/PageHeader'; // componente reutilizable
+import PageHeader from '../components/PageHeader'; 
+import toast from 'react-hot-toast';
 
 export default function VentasView() {
   // states para almacenar las 3 listas de datos necesarias
@@ -65,29 +66,30 @@ export default function VentasView() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const payload = {
-        reloj_id: parseInt(formData.reloj_id),
-        cliente_id: parseInt(formData.cliente_id),
-        fecha: formData.fecha,
-        precio_final: parseFloat(formData.precio_final)
-      };
+        try {
+        const payload = {
+            reloj_id: parseInt(formData.reloj_id),
+            cliente_id: parseInt(formData.cliente_id),
+            fecha: formData.fecha,
+            precio_final: parseFloat(formData.precio_final)
+        };
 
-      const response = await fetch('http://localhost:3000/api/ventas', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      
-      if (!response.ok) throw new Error("Error al registrar la venta");
-      
-      setShowModal(false);
-      fetchData(); 
-    } catch (error) {
-      console.error("Error:", error);
-      alert("❌ No se pudo registrar la venta.");
-    }
-  };
+        const response = await fetch('http://localhost:3000/api/ventas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error("Error al registrar la venta");
+
+        setShowModal(false);
+        fetchData(); 
+        toast.success('¡Venta registrada exitosamente!');
+        } catch (error) {
+        console.error("Error:", error);
+        toast.error("No se pudo registrar la venta.");
+        }
+    };
 
   if (loading) return <div className="p-6">Cargando historial de ventas...</div>;
 

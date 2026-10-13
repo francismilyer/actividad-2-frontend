@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { HiPencilAlt, HiTrash, HiX } from 'react-icons/hi';
-import PageHeader from '../components/PageHeader'; // Uso de componente reutilizable obligatorio
+import PageHeader from '../components/PageHeader'; 
+import toast from 'react-hot-toast';
 
 export default function ClientesView() {
   const [clientes, setClientes] = useState([]);
@@ -58,7 +59,16 @@ export default function ClientesView() {
       
       if (!response.ok) {
         const errorData = await response.json();
-        alert(`❌ Error: ${errorData.error}`);
+        // En handleSubmit:
+        if (!response.ok) {
+        const errorData = await response.json();
+        toast.error(`Error: ${errorData.error}`);
+        return;
+        }
+        setShowModal(false);
+        fetchClientes();
+        toast.success(editingId ? 'Cliente actualizado' : 'Cliente registrado con éxito');
+        
         return;
       }
       setShowModal(false);
@@ -73,11 +83,12 @@ export default function ClientesView() {
       try {
         const response = await fetch(`http://localhost:3000/api/clientes/${id}`, { method: 'DELETE' });
         if (!response.ok) {
-           alert('❌ No se puede eliminar: El cliente ya tiene compras registradas en el sistema.');
-           return;
+        toast.error('No se puede eliminar: El cliente ya tiene compras registradas.');
+        return;
         }
         fetchClientes();
-      } catch (error) {
+        toast.success('Cliente eliminado correctamente');   
+        } catch (error) {
         console.error("Error al eliminar:", error);
       }
     }
