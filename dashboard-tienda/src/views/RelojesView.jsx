@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { HiPlus, HiPencilAlt, HiTrash, HiX } from 'react-icons/hi';
+import { HiPencilAlt, HiTrash, HiX } from 'react-icons/hi';
+import toast from 'react-hot-toast'; // <--- NUEVA IMPORTACIÓN
 import PageHeader from '../components/PageHeader';
 
 export default function RelojesView() {
@@ -53,23 +54,18 @@ export default function RelojesView() {
     setShowModal(true);
   };
 
-  // Enviar el formulario (POST o PUT)
+  // Enviar el formulario 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Evita que la página recargue
-    
-    const url = editingId 
-      ? `http://localhost:3000/api/relojes/${editingId}` // Si hay ID, es Editar (PUT)
-      : 'http://localhost:3000/api/relojes';             // Si no hay ID, es Crear (POST)
-      
+    e.preventDefault();
+    const url = editingId ? `http://localhost:3000/api/relojes/${editingId}` : 'http://localhost:3000/api/relojes';
     const method = editingId ? 'PUT' : 'POST';
 
     try {
-      // 1. Convertimos Año y Precio a números reales para que MariaDB no los rechace
       const payload = {
         marca: formData.marca,
         modelo: formData.modelo,
-        anio: parseInt(formData.anio), // Forzamos a que sea Número Entero
-        precio: parseFloat(formData.precio), // Forzamos a que sea Número Decimal
+        anio: parseInt(formData.anio),
+        precio: parseFloat(formData.precio),
         foto: formData.foto
       };
 
@@ -78,31 +74,39 @@ export default function RelojesView() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      
-      // 2. Si la base de datos lanza un error, lo mostramos en pantalla
+
       if (!response.ok) {
         const errorData = await response.json();
-        alert(`❌ Error de Base de Datos: ${errorData.error}`);
-        return; // Detenemos la función para que el modal no se cierre
+        toast.error(`Error: ${errorData.error}`); // <--- Toast de error
+        return;
       }
 
-      // Si todo sale bien, cerramos el modal y recargamos la tabla
       setShowModal(false); 
-      fetchRelojes();      
+      fetchRelojes(); 
+      toast.success(editingId ? 'Reloj actualizado con éxito' : 'Reloj agregado al catálogo'); // <--- Toast de éxito     
     } catch (error) {
       console.error("Error de conexión:", error);
-      alert("❌ No se pudo conectar con el servidor Backend.");
+      toast.error("No se pudo conectar con el servidor.");
     }
   };
 
-  // Eliminar un reloj (DELETE)
+  // Eliminar un reloj (
   const handleDelete = async (id) => {
+    // En eliminaciones críticas, mantenemos el confirm nativo por seguridad
     if (window.confirm('¿Estás seguro de que deseas eliminar este reloj?')) {
       try {
-        await fetch(`http://localhost:3000/api/relojes/${id}`, { method: 'DELETE' });
-        fetchRelojes(); // Recargamos la tabla
+        const response = await fetch(`http://localhost:3000/api/relojes/${id}`, { method: 'DELETE' });
+
+        if (!response.ok) {
+            toast.error('No se puede eliminar: El reloj ya tiene ventas registradas.');
+            return;
+        }
+
+        fetchRelojes(); 
+        toast.success('Reloj eliminado correctamente'); // <--- Toast de éxito
       } catch (error) {
         console.error("Error al eliminar:", error);
+        toast.error("Error al intentar eliminar el reloj.");
       }
     }
   };
